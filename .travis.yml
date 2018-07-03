@@ -1,5 +1,47 @@
 language: php
-php:
-  - '7.1'
-  - '7.2'
-  - 'nightly'
+
+sudo: false
+
+cache:
+    directories:
+        - $HOME/.composer/cache/files
+
+env:
+    global:
+        - TEST_COMMAND="composer test"
+
+branches:
+    except:
+        - /^analysis-.*$/
+
+matrix:
+    fast_finish: true
+    include:
+          # Test the latest stable release
+        - php: 7.1
+        - php: 7.2
+          env: COVERAGE=true TEST_COMMAND="composer test-ci"
+
+          # Latest commit to master
+        - php: 7.2
+          env: STABILITY="dev"
+
+    allow_failures:
+          # dev stability is allowed to fail
+        - env: STABILITY="dev"
+
+before_install:
+    - if [[ $COVERAGE != true ]]; then phpenv config-rm xdebug.ini || true; fi
+    - if ! [ -z "$STABILITY" ]; then composer config minimum-stability ${STABILITY}; fi;
+
+script:
+    - composer validate --strict --no-check-lock
+    - $TEST_COMMAND
+
+after_success:
+    - if [[ $COVERAGE = true ]]; then wget https://scrutinizer-ci.com/ocular.phar; fi
+    - if [[ $COVERAGE = true ]]; then php ocular.phar code-coverage:upload --format=php-clover build/coverage.xml; fi
+
+after_script:
+    - wget http://tnyholm.se/reporter.phar
+    - php reporter.phar build:upload
