@@ -37,6 +37,9 @@ class StringDecoder
             if ($lastPos === false) {
                 $lastPos = $length;
             }
+
+            // RFC7464 2.1 states that "Multiple consecutive RS octets do not denote empty sequence elements
+            // between them and can be ignored."
             if ($lastPos === $nextPos + 1) {
                 continue;
             }
