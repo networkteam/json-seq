@@ -43,7 +43,7 @@ class StringDecoder
             if ($lastPos === $nextPos + 1) {
                 continue;
             }
-            $jsonText = substr($content, $nextPos + 1, $lastPos - 1);
+            $jsonText = substr($content, $nextPos + 1, $lastPos - ($nextPos + 1));
             $data = $this->jsonDecode($jsonText);
             yield $data;
         }

@@ -36,9 +36,9 @@ class StringDecoderTest extends TestCase
     public function decodeMultipleSequences(): void
     {
         $decoder = new StringDecoder(true);
-        $results = iterator_to_array($decoder->decode("\x1E{\"foo\":\"bar\"}\x0A\x1E{\"bar\":\"baz\"}\x0A"));
+        $results = iterator_to_array($decoder->decode("\x1E{\"foo\":\"bar\"}\x0A{\"id\":42}\x1E{\"bar\":\"baz\",\"x\":0}\x0A"));
 
-        $this->assertSame([['foo' => 'bar'], ['bar' => 'baz']], $results, 'should have two results');
+        $this->assertSame([['foo' => 'bar'], ['id' => 42], ['bar' => 'baz', 'x' => 0]], $results, 'should have two results');
     }
 
     /**
