@@ -32,7 +32,7 @@ class StringDecoder
     {
         $lastPos = 0;
         $length = strlen($content);
-        while (($nextPos = strpos($content, self::RS, $lastPos)) !== false) {
+        while ($lastPos < $length && ($nextPos = strpos($content, self::RS, $lastPos)) !== false) {
             $lastPos = strpos($content, self::RS, $nextPos + 1);
             if ($lastPos === false) {
                 $lastPos = $length;
@@ -41,19 +41,22 @@ class StringDecoder
                 continue;
             }
             $jsonText = substr($content, $nextPos + 1, $lastPos - 1);
-            $data = json_decode($jsonText, $this->jsonDecodeAssoc, $this->jsonDecodeDepth, $this->jsonDecodeOptions);
-            if ($data === null) {
-                $jsonLastError = json_last_error();
-                if ($jsonLastError !== JSON_ERROR_NONE) {
-                    yield new ParseError($jsonLastError, json_last_error_msg());
-                    // RFC7464 2.1 states that the parser should continue
-                    continue;
-                }
-            }
+            $data = $this->jsonDecode($jsonText);
             yield $data;
-            if ($lastPos === $length) {
-                break;
-            }
         }
+    }
+
+    /**
+     * @param string $jsonText
+     * @return mixed|ParseError
+     */
+    private function jsonDecode(string $jsonText)
+    {
+        $data = json_decode($jsonText, $this->jsonDecodeAssoc, $this->jsonDecodeDepth, $this->jsonDecodeOptions);
+        if ($data === null && ($jsonLastError = json_last_error()) !== JSON_ERROR_NONE) {
+            // RFC7464 2.1 states that the parser should continue, so we return a ParseError here
+            $data = new ParseError($jsonLastError, json_last_error_msg());
+        }
+        return $data;
     }
 }
