@@ -1,0 +1,7 @@
+<phpunit bootstrap="vendor/autoload.php">
+  <testsuites>
+    <testsuite name="json-seq">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>
