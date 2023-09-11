@@ -5,7 +5,7 @@
     "license": "MIT",
     "keywords": ["json"],
     "require": {
-        "php": "^7.1"
+        "php": "^7.1 || ^8.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.2"
